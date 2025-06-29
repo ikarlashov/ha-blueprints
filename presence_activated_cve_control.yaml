@@ -41,7 +41,7 @@ action:
     service: fan.set_preset_mode
     target: !input cve_target
     data:
-      preset_mode: "high"
+      preset_mode: "High"
   - alias: "Wait until presence is cleared"
     wait_for_trigger:
       platform: state
@@ -54,4 +54,4 @@ action:
     service: fan.set_preset_mode
     target: !input cve_target
     data:
-      preset_mode: "medium"
+      preset_mode: "Medium"
