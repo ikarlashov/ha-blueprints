@@ -1,0 +1,57 @@
+blueprint:
+  name: Presence-activated CVE Control
+  description: Control CVE preset mode based on presence detection
+  domain: automation
+  input:
+    presence_entity:
+      name: Presence Sensor
+      description: Xiaomi presence sensor device
+      selector:
+        entity:
+          domain: binary_sensor
+          device_class: occupancy
+    cve_target:
+      name: CVE Device
+      description: Itho Daalderop CVE device
+      selector:
+        target:
+          entity:
+            domain: fan
+    no_motion_wait:
+      name: Wait time after presence cleared
+      description: Time to wait after presence is cleared before setting back to medium
+      default: 240
+      selector:
+        number:
+          min: 0
+          max: 3600
+          unit_of_measurement: seconds
+
+mode: restart
+max_exceeded: silent
+
+trigger:
+  - platform: state
+    entity_id: !input presence_entity
+    from: "off"
+    to: "on"
+
+action:
+  - alias: "Set CVE to High"
+    service: fan.set_preset_mode
+    target: !input cve_target
+    data:
+      preset_mode: "high"
+  - alias: "Wait until presence is cleared"
+    wait_for_trigger:
+      platform: state
+      entity_id: !input presence_entity
+      from: "on"
+      to: "off"
+  - alias: "Wait 4 minutes"
+    delay: !input no_motion_wait
+  - alias: "Set CVE back to Medium"
+    service: fan.set_preset_mode
+    target: !input cve_target
+    data:
+      preset_mode: "medium"
